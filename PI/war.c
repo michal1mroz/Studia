@@ -34,7 +34,7 @@ int cbuff_norm(int r){
     return r;
 }
 void cbuff_push(struct cbuff *Player, int val){
-		// Some error here, but it should't happen
+		// Some error here, but it should't happen >:(
 		if(Player->len == DECK_SIZE){
 			abort();
 		}
@@ -48,7 +48,7 @@ int cbuff_pop(struct cbuff *Player){
     Player->out = cbuff_norm(Player->out+1);
     return val;
 }
-
+// Printing all the values stored in the player's deck
 void cbuff_print(const struct cbuff *Player){
     int l = Player->len;
     int r = Player->out;
@@ -57,12 +57,13 @@ void cbuff_print(const struct cbuff *Player){
         r = cbuff_norm(r+1);
     }
 }
+// Getting the value of the card under (r) depth into the queue for the card comparison
 int cbuff_get_card(const struct cbuff *Player,int r){
 	r = cbuff_norm(Player->out + r);
 	int val = Player->deck[r];
 	return val;
 }
-
+// Passing cards from Giver queue to Receiver queue
 void cbuff_pass_cards(struct cbuff *Giver, struct cbuff *Receiver,int depth){
 	int i;
 	for(i=0;i<depth;i++){
@@ -73,8 +74,8 @@ void cbuff_pass_cards(struct cbuff *Giver, struct cbuff *Receiver,int depth){
 
 // Game loop | Oompa-loompa 
 void game_loop(int MAX_GAMES,int GAME_TYPE, struct cbuff *Player_A,struct cbuff *Player_B){
-	int game_counter = 0;
-	int cards_dealt = 0;
+	int game_counter = 0; // Counting number of card comparisons
+	int cards_dealt = 0; // keeping the depth for which comparisons goes into the queue
 
 	while(1){
 		// Out of moves
@@ -99,10 +100,11 @@ void game_loop(int MAX_GAMES,int GAME_TYPE, struct cbuff *Player_A,struct cbuff 
 			printf("1 %d %d",Player_A->len,Player_B->len);
 			return;
 		}
+		// Getting the first card from the players
 		int card_A = cbuff_get_card(Player_A,cards_dealt-1);
 		int card_B = cbuff_get_card(Player_B,cards_dealt-1);
-		card_A = card_A/4;
-		card_B = card_B/4;
+		card_A = card_A >> 2; // Same as division by 4. 
+		card_B = card_B >> 2; 
 		// A wins fight
 		if(card_A>card_B){
 			cbuff_pass_cards(Player_A,Player_A,cards_dealt);
@@ -147,6 +149,8 @@ int main(void){
     for(i;i<DECK_SIZE;i++){
         cbuff_push(&Player_B , deck[i]);
     }
-		game_loop(MAX_GAMES,GAME_TYPE,&Player_A,&Player_B);
-		return 0;
+	 	// Running the main game function
+    game_loop(MAX_GAMES,GAME_TYPE,&Player_A,&Player_B);
+    
+    return 0;
 }
