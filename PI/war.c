@@ -1,5 +1,3 @@
-// Need to add the gameplay mechanic and all the logic
-
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -7,7 +5,7 @@
 
 // Creating shuffeld deck bassing on the seed inputed
 int rand_num(int a, int b){
-    int num = rand()%(b-a+1)+1;
+    int num = rand()%(b-a+1)+a;
     return num;
 }
 void shuffle(int tab[],int seed){
@@ -36,33 +34,107 @@ int cbuff_norm(int r){
     return r;
 }
 void cbuff_push(struct cbuff *Player, int val){
-    int r = cbuff_norm(Player->len+Player->out);
-    Player ->deck[r]=val;
+		// Some error here, but it should't happen
+		if(Player->len == DECK_SIZE){
+			abort();
+		}
+    int r = cbuff_norm(Player->len + Player->out);
+    Player->deck[r]=val;
     Player->len++;
 }
-int cbuff_pop(struct cbuff *Player, int r){
+int cbuff_pop(struct cbuff *Player){
     int val = Player->deck[Player->out];
     Player->len--;
     Player->out = cbuff_norm(Player->out+1);
     return val;
 }
+
 void cbuff_print(const struct cbuff *Player){
-    int i;
+    int l = Player->len;
     int r = Player->out;
-    for(i=0;i<(Player->len);i++){
-        printf("%d ",(Player->deck[i]));
+    for(int i=0;i<l;i++){
+        printf("%d ",(Player->deck[r]));
         r = cbuff_norm(r+1);
     }
 }
+int cbuff_get_card(const struct cbuff *Player,int r){
+	r = cbuff_norm(Player->out + r);
+	int val = Player->deck[r];
+	return val;
+}
 
-// Game stuff
+void cbuff_pass_cards(struct cbuff *Giver, struct cbuff *Receiver,int depth){
+	int i;
+	for(i=0;i<depth;i++){
+		int val = cbuff_pop(Giver);
+		cbuff_push(Receiver,val);
+	}
+}
 
+// Game loop | Oompa-loompa 
+void game_loop(int MAX_GAMES,int GAME_TYPE, struct cbuff *Player_A,struct cbuff *Player_B){
+	int game_counter = 0;
+	int cards_dealt = 0;
+
+	while(1){
+		// Out of moves
+		if(++game_counter>MAX_GAMES){
+			printf("0 %d %d %d",Player_A->len,Player_B->len);
+			return;
+		}
+		// Player A wins
+		if(Player_B->len==0){
+			printf("2 %d",game_counter-1);
+			return;
+		}
+		// Player B wins
+		if(Player_A->len==0){
+			printf("3\n");
+			cbuff_print(Player_B);
+			return;
+		}
+		cards_dealt++;
+		// Out of cards
+		if(Player_A->len < cards_dealt || Player_B->len < cards_dealt){
+			printf("1 %d %d",Player_A->len,Player_B->len);
+			return;
+		}
+		int card_A = cbuff_get_card(Player_A,cards_dealt-1);
+		int card_B = cbuff_get_card(Player_B,cards_dealt-1);
+		card_A = card_A/4;
+		card_B = card_B/4;
+		// A wins fight
+		if(card_A>card_B){
+			cbuff_pass_cards(Player_A,Player_A,cards_dealt);
+			cbuff_pass_cards(Player_B,Player_A,cards_dealt);
+			cards_dealt = 0;
+		}
+		else if(card_A==card_B){
+			if(GAME_TYPE==0){
+				cards_dealt+=1;
+			}
+			else if(GAME_TYPE==1){
+				cbuff_pass_cards(Player_A,Player_A,cards_dealt);
+				cbuff_pass_cards(Player_B,Player_B,cards_dealt);
+				cards_dealt = 0;
+			}
+		}// B wins fight
+		else{
+			cbuff_pass_cards(Player_B,Player_B,cards_dealt);
+			cbuff_pass_cards(Player_A,Player_B,cards_dealt);
+			cards_dealt = 0;
+		}
+	}
+}
 
 int main(void){
 
     // Initialization
-    int seed = 0;
+    int seed;
+		int GAME_TYPE,MAX_GAMES;
     scanf("%d",&seed);
+		scanf("%d",&GAME_TYPE);
+		scanf("%d",&MAX_GAMES);
     int deck[DECK_SIZE];
     struct cbuff Player_A = {.len = 0, .out = 0};
     struct cbuff Player_B = {.len =0, .out = 0};
@@ -75,12 +147,6 @@ int main(void){
     for(i;i<DECK_SIZE;i++){
         cbuff_push(&Player_B , deck[i]);
     }
-
-    /*
-    cbuff_print(&Player_A);
-    printf("\n");
-    cbuff_print(&Player_B);  
-    */
-
-    return 0;
+		game_loop(MAX_GAMES,GAME_TYPE,&Player_A,&Player_B);
+		return 0;
 }
