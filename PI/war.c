@@ -63,7 +63,7 @@ int cbuff_get_card(const struct cbuff *Player,int r){
 	int val = Player->deck[r];
 	return val;
 }
-// Passing cards from Giver queue to Receiver queue
+// Passing cards from Givers queue to Receivers queue
 void cbuff_pass_cards(struct cbuff *Giver, struct cbuff *Receiver,int depth){
 	int i;
 	for(i=0;i<depth;i++){
@@ -75,7 +75,7 @@ void cbuff_pass_cards(struct cbuff *Giver, struct cbuff *Receiver,int depth){
 // Game loop | Oompa-loompa 
 void game_loop(int MAX_GAMES,int GAME_TYPE, struct cbuff *Player_A,struct cbuff *Player_B){
 	int game_counter = 0; // Counting number of card comparisons
-	int cards_dealt = 0; // keeping the depth for which comparisons goes into the queue
+	int cards_dealt = 0; // keeping the depth for which comparisons go into the queue
 
 	while(1){
 		// Out of moves
