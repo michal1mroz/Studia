@@ -1,0 +1,104 @@
+
+#Quick sort:
+def quickSort(tab,low,high):
+    if low < high:
+        #Choosing pivot element. Can be anything in between low and high
+        pivot_id = (low+high)//2
+        pivot_val = tab[pivot_id]
+
+        #Partition function
+        i = low
+        j = high
+        while i<=j:
+            while tab[i]<pivot_val:
+                i+=1
+            while tab[j]>pivot_val:
+                j-=1
+            if i<=j:
+                tab[i],tab[j]=tab[j],tab[i]
+                i+=1
+                j-=1
+
+        #Recursive call
+        quickSort(tab,low,j)
+        quickSort(tab,i,high)
+
+
+#Merge sort:
+def mergeSort(tab):
+    #Return of one element array
+    if len(tab) <=1:
+        return tab
+
+    #Dividinge the array into halves
+    mid = len(tab)//2
+    left = tab[:mid]
+    right = tab[mid:]
+
+    #Calling the reccursion
+    left = mergeSort(left)
+    right = mergeSort(right)
+
+    #Merging resulting arrays into result array
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i]<right[j]:
+            result.append(left[i])
+            i+=1
+        else:
+            result.append(right[j])
+            j+=1
+
+    #Nice hack. One of those is empty, so you can add it without consequences
+    result+=left[i:]
+    result+=right[j:]
+    return result 
+
+#Styrta się pali (heapify)
+def heapify(tab,i,n):
+    #n is a heap size and i is the parent root
+    max_id = i
+    l = 2*i + 1
+    r = 2*i + 2
+
+    #Check if the kids are not more hung than papa
+    if l < n and tab[max_id] < tab[l]:
+        max_id = l
+    if r < n and tab[max_id] < tab[r]:
+        max_id=r
+
+    #If yes swap them and do it again
+    if max_id != i:
+        tab[i],tab[max_id]=tab[max_id],tab[i]
+        heapify(tab,max_id,n)
+
+#Sortowanie przez styrtowanie :3
+def heapSort(tab):
+    n = len(tab)
+
+    #Building the heap
+    for i in range(n//2-1,-1,-1):
+        heapify(tab,i,n)
+    #Sorting the heap
+    for i in range(n-1,0,-1):
+        tab[i],tab[0]=tab[0],tab[i]
+        heapify(tab,0,i)
+    return tab
+
+
+#Driver
+tab = [2,10,7,4,6,3,5,1,9,8]
+n = len(tab)
+print(tab,"\n")
+switch = input("Wybierz algorytm sortowania:\n1 - Quick Sort\n2 - Merge Sort\n3 - Heap Sort\n")
+
+match switch:
+    case "1":
+        print(quickSort(tab,0,n-1))
+    case "2":
+        print(mergeSort(tab))
+    case "3":
+        print(heapSort(tab))
+    case default:
+        print("Wrong input")
