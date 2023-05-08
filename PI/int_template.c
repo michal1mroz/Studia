@@ -1,4 +1,6 @@
 // Lasciate ogne speranza, voi ch’intrate
+//
+// Numerical stability is a joke to those scary people :C
 
 #include <stdio.h>
 #include <math.h>
